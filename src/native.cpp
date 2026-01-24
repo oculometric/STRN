@@ -415,7 +415,11 @@ void NativeRasteriser::present()
 
 Vec2 NativeRasteriser::calculateSize() const
 {
-    const float wide = static_cast<float>(width) / (static_cast<float>(char_width) * static_cast<float>(scale_factor));
-    const float high = static_cast<float>(height) / (static_cast<float>(char_height) * static_cast<float>(scale_factor));
+    float wide = static_cast<float>(width) / (static_cast<float>(char_width) * static_cast<float>(scale_factor));
+    if (wide <= 0.0f)
+        wide = 1.0f;
+    float high = static_cast<float>(height) / (static_cast<float>(char_height) * static_cast<float>(scale_factor));
+    if (high <= 0.0f)
+        high = 1.0f;
     return Vec2{ static_cast<int>(ceilf(wide)), static_cast<int>(ceilf(high)) };    
 }
