@@ -197,9 +197,40 @@ public:
     void present() override;
 };
 
-class WindowRasteriser : public Rasteriser
+struct GLFWwindow;
+
+class NativeRasteriser : public Rasteriser
 {
-    // TODO: custom window rasteriser
+private:
+    struct Vertex
+    {
+        float vertex_position[3];
+        float vertex_colour_a[3];
+        float vertex_colour_b[3];
+        float vertex_uv[2];
+    };
+
+private:
+    GLFWwindow* window = nullptr;
+    int width = 0;
+    int height = 0;
+
+    unsigned int vertex_buffer;
+    unsigned int index_buffer;
+    unsigned int vertex_array_object;
+    unsigned int shader_program;
+    unsigned int shvar_transform;
+    unsigned int font_texture;
+    int mesh_index_count;
+
+public:
+    NativeRasteriser();
+    NativeRasteriser(const NativeRasteriser& other) = delete;
+    void operator=(const NativeRasteriser& other) = delete;
+    ~NativeRasteriser() override = default;
+    
+    void update();
+    void present() override;
 };
 
 }
