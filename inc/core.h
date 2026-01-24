@@ -122,7 +122,7 @@ public:
     void drawBox(Vec2 start, Vec2 size, int palette_colour = 0);
     void fill(Vec2 start, Vec2 size, Char value);
     void fill(Vec2 start, Vec2 size, unsigned char value, int palette_colour = 0);
-    void drawText(Vec2 start, const std::string& text, Colour colour = DEFAULT_COLOUR, size_t text_offset = 0, size_t max_length = -1);
+    void drawText(Vec2 start, const std::string& text, Colour colour, size_t text_offset = 0, size_t max_length = -1);
     void drawText(Vec2 start, const std::string& text, int palette_colour = 0, size_t text_offset = 0, size_t max_length = -1);
     
     std::vector<Char>::const_iterator begin() const;
@@ -149,8 +149,13 @@ public:
     Drawable() = default;
     virtual ~Drawable() = default;
     
-    virtual void render(Context& ctx) { }
     Transform2 getTransform() const { return transform; }
+    Vec2 getSize() const { return transform.size; }
+    void setSize(Vec2 value);
+    Vec2 getPosition() const { return transform.position; }
+    void setPosition(Vec2 value);
+    
+    virtual void render(Context& ctx) { }
 };
 
 class Rasteriser

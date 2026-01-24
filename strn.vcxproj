@@ -151,6 +151,7 @@
     <ClCompile Include="src\core.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\native.cpp" />
+    <ClCompile Include="src\nodes.cpp" />
     <ClCompile Include="src\terminal.cpp" />
     <ClCompile Include="src\util.cpp" />
     <ClCompile Include="src\widgets.cpp" />
@@ -158,6 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\core.h" />
+    <ClInclude Include="inc\nodes.h" />
     <ClInclude Include="inc\strn.h" />
     <ClInclude Include="inc\util.h" />
     <ClInclude Include="inc\widgets.h" />

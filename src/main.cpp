@@ -19,7 +19,7 @@ const char* saturn_ascii =
 int main()
 {
     STRN::NativeRasteriser comp;
-    STRN::Window* window = new STRN::Window("test", false, false);
+    STRN::Window* window = new STRN::Window("performance", false, false);
     comp.insertDrawable(window);
     window->setSize({ 20, 4 });
     STRN::Window* window2 = new STRN::Window("lucylucy", false, false);
@@ -33,17 +33,30 @@ int main()
     window3->setSize({ 60, 16 });
     STRN::Builder w3_builder;
     w3_builder.beginHorizontalBox();
-        w3_builder.artBlock(saturn_ascii, 15);
-        w3_builder.beginVerticalBox();
-            w3_builder.label("i didnt want your little bitchass anyway!~");
-            w3_builder.label("busy woman");
-            w3_builder.label("but if you need my love");
-            w3_builder.sizeLimiter(STRN::Vec2{ 10, 1 }, STRN::Vec2{ 1, 1 });
-            w3_builder.label("my clothes are off im coming over to your place");
-            w3_builder.label("the quick brown fox jumps over the lazy dog. oh yeah, and shes a really cute fox too actually!");
-        w3_builder.endVerticalBox();
+    w3_builder.artBlock(saturn_ascii, 15);
+    w3_builder.beginVerticalBox();
+    w3_builder.label("i didnt want your little bitchass anyway!~");
+    w3_builder.label("busy woman");
+    w3_builder.label("but if you need my love");
+    w3_builder.sizeLimiter(STRN::Vec2{ 10, 1 }, STRN::Vec2{ 1, 1 });
+    w3_builder.label("my clothes are off im coming over to your place");
+    w3_builder.label("the quick brown fox jumps over the lazy dog. oh yeah, and shes a really cute fox too actually!");
+    w3_builder.endVerticalBox();
     w3_builder.endHorizontalBox();
     window3->setRoot(w3_builder.end());
+    
+    STRN::Node* node = new STRN::Node("blibblob", 
+        { 
+            { "an input", STRN::Node::ELEMENT_INPUT },
+            { "another input", STRN::Node::ELEMENT_INPUT },
+            { "output!", STRN::Node::ELEMENT_OUTPUT },
+            { "spacer?", STRN::Node::ELEMENT_SPACE },
+            { "block", STRN::Node::ELEMENT_BLOCK },
+            { "just a bit of text", STRN::Node::ELEMENT_TEXT },
+            { "final output", STRN::Node::ELEMENT_OUTPUT },
+        });
+    comp.insertDrawable(node);
+    node->setPosition({ 3, 16 });
     
     STRN::Label perf_label("fps: 0");
     STRN::Label perf_label2("dt: 0");

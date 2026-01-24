@@ -29,10 +29,6 @@ public:
     void operator=(Window&& other) = delete;
     ~Window() override = default;
     
-    Vec2 getSize() const { return transform.size; }
-    void setSize(Vec2 value);
-    Vec2 getPosition() const { return transform.position; }
-    void setPosition(Vec2 value);
     std::string getTitle() const { return title; }
     void setTitle(const std::string& value);
     void setAllowsMinimise(bool value);

@@ -5,12 +5,6 @@
 using namespace STRN;
 using namespace std;
 
-void Window::setSize(const Vec2 value)
-{ transform.size = value; dirty(); }
-
-void Window::setPosition(const Vec2 value)
-{ transform.position = value; dirty(); }
-
 void Window::setTitle(const std::string& value)
 { title = value; dirty(); }
 

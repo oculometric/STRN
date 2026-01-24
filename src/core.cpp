@@ -175,6 +175,12 @@ void Context::resize(const Vec2 new_size, const Char fill_value)
     permitted_bounds = { { 0, 0 }, new_size };
 }
 
+void Drawable::setSize(const Vec2 value)
+{ transform.size = value; }
+
+void Drawable::setPosition(const Vec2 value)
+{ transform.position = value; }
+
 void Rasteriser::render()
 {
     vector<Drawable*> commands;

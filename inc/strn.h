@@ -4,8 +4,4 @@
 #include "core.h"
 #include "widgets.h"
 #include "window.h"
-
-namespace STRN
-{
-
-}
+#include "nodes.h"
