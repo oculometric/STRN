@@ -147,7 +147,7 @@ public:
     Drawable() = default;
     virtual ~Drawable() = default;
     
-    virtual void render(Context& ctx) const { }
+    virtual void render(Context& ctx) { }
     Transform2 getTransform() const { return transform; }
 };
 
@@ -167,6 +167,7 @@ public:
     void render();
     virtual void present() { }
     Vec2 getSize() const { return size; }
+    void setSize(Vec2 new_size);
     bool insertDrawable(Drawable* d);
     bool eraseDrawable(Drawable* d);
     void setClearValue(Char value);
@@ -175,11 +176,25 @@ public:
     
 protected:
     Rasteriser() { }
+    
+    const Context& getContext() const { return context; }
+    void clearContext();
 };
 
 class TerminalRasteriser : public Rasteriser
 {
-    // TODO: port terminal thing from compositor to rasteriser
+public:
+    TerminalRasteriser();
+    TerminalRasteriser(const TerminalRasteriser& other) = delete;
+    void operator=(const TerminalRasteriser& other) = delete;
+    ~TerminalRasteriser() override = default;
+    
+    static Vec2 getScreenSize();
+    static void setCursorVisible(bool visible);
+    static void setCursorPosition(Vec2 position);
+    
+    void update();
+    void present() override;
 };
 
 class WindowRasteriser : public Rasteriser

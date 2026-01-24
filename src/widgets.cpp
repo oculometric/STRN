@@ -49,7 +49,7 @@ void Widget::dirty() const
 // Label ====================================================
 
 void Label::render(Context& ctx) const
-{ ctx.drawText(Vec2{ 0, 0 }, text); }
+{ ctx.drawText(Vec2{ 0, 0 }, text, 0); }
 
 void Label::setText(const std::string& value)
 { text = value; dirty(); }

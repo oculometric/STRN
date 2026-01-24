@@ -18,14 +18,17 @@ const char* saturn_ascii =
 
 int main()
 {
-    STRN::TerminalCompositor comp;
-    STRN::Window* window = comp.newWindow("test");
+    STRN::TerminalRasteriser comp;
+    STRN::Window* window = new STRN::Window("test", false, false);
+    comp.insertDrawable(window);
     window->setSize({ 20, 4 });
-    STRN::Window* window2 = comp.newWindow("lucylucy");
+    STRN::Window* window2 = new STRN::Window("lucylucy", false, false);
+    comp.insertDrawable(window2);
     window2->setPosition({ 16, 8 });
     window2->setSize({ 26, 6 });
 
-    STRN::Window* window3 = comp.newWindow("big guy");
+    STRN::Window* window3 = new STRN::Window("big guy", false, false);
+    comp.insertDrawable(window3);
     window3->setPosition({ 50, 2 });
     window3->setSize({ 60, 16 });
     STRN::Builder w3_builder;
@@ -52,6 +55,8 @@ int main()
     {
         auto last = std::chrono::high_resolution_clock::now();
         comp.update();
+        comp.render();
+        comp.present();
         auto now = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> duration = now - last;        
         perf_label.setText("fps: " + std::to_string(1.0 / duration.count()));
