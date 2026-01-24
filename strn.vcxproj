@@ -149,8 +149,9 @@
   <ItemGroup>
     <ClCompile Include="lib\src\glad.c" />
     <ClCompile Include="src\core.cpp" />
-    <ClCompile Include="src\ibmmodel30r0.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\native.cpp" />
+    <ClCompile Include="src\terminal.cpp" />
     <ClCompile Include="src\util.cpp" />
     <ClCompile Include="src\widgets.cpp" />
     <ClCompile Include="src\window.cpp" />

@@ -7,6 +7,8 @@
 
 #include "util.h"
 
+struct GLFWwindow;
+
 namespace STRN
 {
 
@@ -65,14 +67,14 @@ inline Colour invert(const Colour c)
 struct Char
 {
 public:
-    char value = ' ';
+    unsigned char value = ' ';
     Colour colour_bits = DEFAULT_COLOUR;
     
 public:
     Char() = default;
-    Char(const char c) : value(c) { }
+    Char(const unsigned char c) : value(c) { }
     Char(const int c) { value = static_cast<char>(c); }
-    Char(const char chr, const Colour col) : value(chr), colour_bits(col) { }
+    Char(const unsigned char chr, const Colour col) : value(chr), colour_bits(col) { }
 };
 
 struct Palette
@@ -116,10 +118,10 @@ public:
     
     Vec2 getSize() const { return permitted_bounds.size(); }
     void draw(Vec2 position, Char value);
-    void draw(Vec2 position, char value, int palette_colour = 0); // TODO: use palette
+    void draw(Vec2 position, unsigned char value, int palette_colour = 0);
     void drawBox(Vec2 start, Vec2 size, int palette_colour = 0);
     void fill(Vec2 start, Vec2 size, Char value);
-    void fill(Vec2 start, Vec2 size, char value, int palette_colour = 0);
+    void fill(Vec2 start, Vec2 size, unsigned char value, int palette_colour = 0);
     void drawText(Vec2 start, const std::string& text, Colour colour = DEFAULT_COLOUR, size_t text_offset = 0, size_t max_length = -1);
     void drawText(Vec2 start, const std::string& text, int palette_colour = 0, size_t text_offset = 0, size_t max_length = -1);
     
@@ -197,8 +199,6 @@ public:
     void present() override;
 };
 
-struct GLFWwindow;
-
 class NativeRasteriser : public Rasteriser
 {
 private:
@@ -214,12 +214,14 @@ private:
     GLFWwindow* window = nullptr;
     int width = 0;
     int height = 0;
+    size_t scale_factor = 2;
+    size_t pitch = 1;
 
     unsigned int vertex_buffer;
     unsigned int index_buffer;
     unsigned int vertex_array_object;
     unsigned int shader_program;
-    unsigned int shvar_transform;
+    int transform_var;
     unsigned int font_texture;
     int mesh_index_count;
 
@@ -229,8 +231,14 @@ public:
     void operator=(const NativeRasteriser& other) = delete;
     ~NativeRasteriser() override = default;
     
-    void update();
+    void setWindowSize(int w, int h) const;
+    void setScaleFactor(size_t value);
+    
+    bool update();
     void present() override;
+    
+private:
+    Vec2 calculateSize() const;
 };
 
 }

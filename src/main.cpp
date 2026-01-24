@@ -54,7 +54,8 @@ int main()
     while (true)
     {
         auto last = std::chrono::high_resolution_clock::now();
-        comp.update();
+        if (comp.update())
+            break;
         comp.render();
         comp.present();
         auto now = std::chrono::high_resolution_clock::now();
