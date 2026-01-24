@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 namespace STRN
 {
 
@@ -8,13 +10,13 @@ struct Vec2
     int x = 0;
     int y = 0;
     
-    inline Vec2& operator+=(const Vec2& other) { x += other.x; y += other.y; return *this; }
-    inline Vec2& operator-=(const Vec2& other) { x -= other.x; y -= other.y; return *this; }
-    inline Vec2& operator*=(const Vec2& other) { x *= other.x; y *= other.y; return *this; }
-    inline Vec2& operator/=(const Vec2& other) { x /= other.x; y /= other.y; return *this; }
-    inline Vec2& operator*=(const int other) { x *= other; y *= other; return *this; }
-    inline Vec2& operator/=(const int other) { x /= other; y /= other; return *this; }
-    inline bool operator==(const Vec2& other) const { return x == other.x && y == other.y; }
+    Vec2& operator+=(const Vec2& other) { x += other.x; y += other.y; return *this; }
+    Vec2& operator-=(const Vec2& other) { x -= other.x; y -= other.y; return *this; }
+    Vec2& operator*=(const Vec2& other) { x *= other.x; y *= other.y; return *this; }
+    Vec2& operator/=(const Vec2& other) { x /= other.x; y /= other.y; return *this; }
+    Vec2& operator*=(const int other) { x *= other; y *= other; return *this; }
+    Vec2& operator/=(const int other) { x /= other; y /= other; return *this; }
+    bool operator==(const Vec2& other) const { return x == other.x && y == other.y; }
 };
 
 inline Vec2 operator+(const Vec2& a, const Vec2& b) { return Vec2{ a.x + b.x, a.y + b.y }; }
@@ -32,7 +34,7 @@ struct Box2
     Vec2 min;
     Vec2 max;
     
-    inline Vec2 size() const { return max - min; }
+    Vec2 size() const { return max - min; }
 };
 
 struct Transform2
@@ -45,5 +47,7 @@ struct Transform2
     int top_clip = 0;
     int bottom_clip = 0;
 };
+
+Vec2 clip(Vec2 min_size, Vec2 max_size, Vec2 available_size);
 
 }
