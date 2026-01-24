@@ -24,25 +24,29 @@ void Context::draw(const Vec2 position, const Char value)
     backing[offset] = value;
 }
 
+void Context::draw(const Vec2 position, char value, const int palette_colour)
+{ draw(position, { value, getPaletteColour(palette_colour) }); }
+
 // TODO: make this actually platform-independent https://stackoverflow.com/questions/4494306/drawing-tables-in-terminal-using-ansi-box-characters
-void Context::drawBox(const Vec2 start, const Vec2 size)
+void Context::drawBox(const Vec2 start, const Vec2 size, const int palette_colour)
 {
+    const Colour col = getPaletteColour(palette_colour);
     if (size.x < 2 || size.y < 2)
         return;
-    draw(start, 0xDA);
+    draw(start, { (char)0xDA, col });
     for (int a = start.x + 1; a < start.x + size.x - 1; ++a)
     {
-        draw(Vec2{ a, start.y }, 0xC4);
-        draw(Vec2{ a, start.y + size.y - 1 }, 0xC4);
+        draw(Vec2{ a, start.y }, { (char)0xC4, col });
+        draw(Vec2{ a, start.y + size.y - 1 }, { (char)0xC4, col });
     }
-    draw(start + Vec2{ size.x - 1, 0 }, 0xBF);
-    draw(start + Vec2{ 0, size.y - 1 }, 0xC0);
+    draw(start + Vec2{ size.x - 1, 0 }, { (char)0xBF, col });
+    draw(start + Vec2{ 0, size.y - 1 }, { (char)0xC0, col });
     for (int a = start.y + 1; a < start.y + size.y - 1; ++a)
     {
-        draw(Vec2{ start.x, a }, 0xB3);
-        draw(Vec2{ start.x + size.x - 1, a }, 0xB3);
+        draw(Vec2{ start.x, a }, { (char)0xB3, col });
+        draw(Vec2{ start.x + size.x - 1, a }, { (char)0xB3, col });
     }
-    draw(start + size - Vec2{ 1, 1 }, 0xD9);
+    draw(start + size - Vec2{ 1, 1 }, { (char)0xD9, col });
 }
 
 void Context::fill(const Vec2 start, const Vec2 size, const Char value)
@@ -65,6 +69,9 @@ void Context::fill(const Vec2 start, const Vec2 size, const Char value)
         offset = line_start;
     }
 }
+
+void Context::fill(const Vec2 start, const Vec2 size, char value, const int palette_colour)
+{ fill(start, size, { value, getPaletteColour(palette_colour) }); }
 
 void Context::drawText(const Vec2 start, const string& text, Colour colour, size_t text_offset, size_t max_length)
 {
@@ -99,6 +106,9 @@ void Context::drawText(const Vec2 start, const string& text, Colour colour, size
     }
 }
 
+void Context::drawText(const Vec2 start, const std::string& text, const int palette_colour, const size_t text_offset, const size_t max_length)
+{ drawText(start, text, getPaletteColour(palette_colour), text_offset, max_length); }
+
 vector<Char>::const_iterator Context::begin() const
 {
     return backing.begin();
@@ -127,6 +137,29 @@ void Context::popBounds()
     }
 }
 
+void Context::pushPalette(const Palette& p)
+{
+    palette_stack.push_back(p);
+}
+
+void Context::popPalette()
+{
+    if (!palette_stack.empty())
+        palette_stack.pop_back();
+}
+
+void Context::setBasePalette(const Palette& p)
+{
+    base_palette = p;
+}
+
+Colour Context::getPaletteColour(int c) const
+{
+    if (palette_stack.empty())
+        return base_palette[c];
+    return (palette_stack[palette_stack.size() - 1])[c];
+}
+
 void Context::clear(const Char fill_value)
 {
     for (auto& it : backing)
@@ -141,3 +174,41 @@ void Context::resize(const Vec2 new_size, const Char fill_value)
     pitch = new_size.x;
     permitted_bounds = { { 0, 0 }, new_size };
 }
+
+void Rasteriser::render()
+{
+    vector<Drawable*> commands;
+    commands.insert(commands.end(), drawables.begin(), drawables.end());
+    sort(commands.begin(), commands.end(), 
+        [](const Drawable* a, const Drawable* b) -> bool { return a->getTransform().z < b->getTransform().z; });
+    context.clear({ ' ' });
+    for (auto it : commands)
+    {
+        auto trans = it->getTransform();
+        context.pushBounds(trans.position, trans.position + trans.size);
+        it->render(context);
+        context.popBounds();
+    }
+}
+
+bool Rasteriser::insertDrawable(Drawable* d)
+{
+    if (drawables.count(d) > 0)
+        return false;
+    drawables.insert(d);
+    return true;
+}
+
+bool Rasteriser::eraseDrawable(Drawable* d)
+{
+    if (drawables.count(d) == 0)
+        return false;
+    drawables.erase(d);
+    return true;
+}
+
+void Rasteriser::setClearValue(Char value)
+{ clear_value = value; }
+
+void Rasteriser::setPalette(const Palette& p)
+{ context.setBasePalette(p); }

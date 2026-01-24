@@ -41,6 +41,7 @@ struct Transform2
 {
     Vec2 position;
     Vec2 size;
+    int z = 0;
     
     int left_clip = 0;
     int right_clip = 0;
