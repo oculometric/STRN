@@ -155,6 +155,9 @@
     <ClInclude Include="inc\util.h" />
     <ClInclude Include="inc\widgets.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="TODO.md" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

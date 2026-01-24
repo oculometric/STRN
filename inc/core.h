@@ -58,7 +58,6 @@ inline Colour background(const Colour c)
 inline Colour invert(const Colour c)
 { return static_cast<Colour>((foreground(c) << 4) | (background(c) >> 4)); }
 
-// TODO: make colours a palette instead!
 #define DEFAULT_COLOUR (BG_BLACK | FG_WHITE)
 #define DEFAULT_INVERTED (FG_BLACK | BG_WHITE)
 

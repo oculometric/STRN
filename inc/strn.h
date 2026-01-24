@@ -7,11 +7,6 @@
 #include "core.h"
 #include "widgets.h"
 
-// TODO: document *everything*
-// TODO: nodes based view
-// TODO: reorganise the drawing/canvas system to be more abstract - something akin to draw commands!
-// TODO: custom terminal renderer window with custom font to bypass stupid terminal support
-
 namespace STRN
 {
 
@@ -99,7 +94,5 @@ public:
     
     void update() override;
 };
-
-// TODO: manages windows and the environment (desktop mode, fixed-size mode, single-window mode, handled by child classes)
 
 }
