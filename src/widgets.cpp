@@ -197,6 +197,27 @@ void SizeLimiter::setMaxSize(const Vec2& value)
 void SizeLimiter::setMinSize(const Vec2& value)
 { min_size = maxi(Vec2{ 0, 0 }, value); }
 
+// Border ====================================================
+
+void Border::arrange(const Vec2 available_area)
+{
+    setSize(available_area);
+    if (children.empty())
+        return;
+    children[0]->arrange(available_area - Vec2{ 2, 2 });
+    children[0]->setPosition(Vec2{ 1, 1 });
+}
+
+void Border::render(Context& ctx) const
+{
+    ctx.drawBox(Vec2{ 0, 0 }, ctx.getSize());
+    if (children.empty())
+        return;
+    const auto c = children[0];
+    ctx.pushBounds(c->getTransform().position, c->getTransform().position + c->getTransform().size);
+    c->render(ctx);
+    ctx.popBounds();
+}
 
 // Builder =================================================
 
