@@ -69,6 +69,13 @@ int main()
         auto last = std::chrono::high_resolution_clock::now();
         if (comp.update())
             break;
+        STRN::KeyEvent key = comp.getKeyEvent();
+        while (key.key != 0)
+        {
+            if (/*key.key >= 'A' && key.key <= 'Z' && */key.pressed)
+                window2->setTitle(window2->getTitle() + (char)key.key);
+            key = comp.getKeyEvent();
+        }
         comp.render();
         comp.present();
         auto now = std::chrono::high_resolution_clock::now();

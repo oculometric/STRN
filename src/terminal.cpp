@@ -56,17 +56,17 @@ void TerminalRasteriser::setCursorVisible(const bool visible)
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info);
 #elif defined(__linux__)
     if (visible) fputs("\033[?25h", stdout);
-    else fputs(std::cout << "\033[?25l", stdout);
+    else fputs("\033[?25l", stdout);
 #endif
 }
 
 void TerminalRasteriser::setCursorPosition(const Vec2 position)
 { printf("\033[%i;%iH", position.y, position.x); }
 
-void TerminalRasteriser::update()
+bool TerminalRasteriser::update()
 {
     setSize(getScreenSize());
-    // TODO: handle input
+    return false; // TODO: should return true if CTRL+C is pressed
 }
 
 static const char* getANSIColourFromBits(const Colour c, const bool high)

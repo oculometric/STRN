@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <queue>
 
 #include "util.h"
 
@@ -158,6 +159,24 @@ public:
     virtual void render(Context& ctx) { }
 };
 
+struct KeyEvent
+{
+    enum Modifier
+    {
+        NONE = 0,
+        SHIFT = 1,
+        CTRL = 2,
+        ALT = 4,
+        SUPER = 8,
+        CAPS = 16,
+        NUM = 32
+    };
+
+    int key = 0;
+    bool pressed = false;
+    Modifier modifiers = NONE;
+};
+
 class Rasteriser
 {
 private:
@@ -172,6 +191,8 @@ public:
     virtual ~Rasteriser() = default;
     
     void render();
+    virtual bool update() { return false; }
+    virtual KeyEvent getKeyEvent() { return { }; }
     virtual void present() { }
     Vec2 getSize() const { return size; }
     void setSize(Vec2 new_size);
@@ -200,7 +221,8 @@ public:
     static void setCursorVisible(bool visible);
     static void setCursorPosition(Vec2 position);
     
-    void update();
+    bool update() override;
+    // TODO: handle input
     void present() override;
 };
 
@@ -230,6 +252,8 @@ private:
     unsigned int font_texture;
     int mesh_index_count;
 
+    std::queue<KeyEvent> pending_keys;
+
 public:
     NativeRasteriser();
     NativeRasteriser(const NativeRasteriser& other) = delete;
@@ -239,11 +263,13 @@ public:
     void setWindowSize(int w, int h) const;
     void setScaleFactor(size_t value);
     
-    bool update();
+    bool update() override;
+    KeyEvent getKeyEvent() override;
     void present() override;
     
 private:
     Vec2 calculateSize() const;
+    static void keyFunction(GLFWwindow* window, int key, int scancode, int action, int mods);
 };
 
 }
