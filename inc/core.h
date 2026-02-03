@@ -120,9 +120,13 @@ public:
     Vec2 getSize() const { return permitted_bounds.size(); }
     void draw(Vec2 position, Char value);
     void draw(Vec2 position, unsigned char value, int palette_colour = 0);
+    void drawColour(Vec2 position, Colour colour);
+    void drawColour(Vec2 position, int palette_colour);
     void drawBox(Vec2 start, Vec2 size, int palette_colour = 0);
     void fill(Vec2 start, Vec2 size, Char value);
     void fill(Vec2 start, Vec2 size, unsigned char value, int palette_colour = 0);
+    void fillColour(Vec2 start, Vec2 size, Colour colour);
+    void fillColour(Vec2 start, Vec2 size, int palette_colour);
     void drawText(Vec2 start, const std::string& text, Colour colour, size_t text_offset = 0, size_t max_length = -1);
     void drawText(Vec2 start, const std::string& text, int palette_colour = 0, size_t text_offset = 0, size_t max_length = -1);
     
@@ -253,6 +257,7 @@ private:
     int mesh_index_count;
 
     std::queue<KeyEvent> pending_keys;
+    std::queue<unsigned int> pending_chars;
 
 public:
     NativeRasteriser();
@@ -265,11 +270,13 @@ public:
     
     bool update() override;
     KeyEvent getKeyEvent() override;
+    unsigned int getCharEvent();
     void present() override;
     
 private:
     Vec2 calculateSize() const;
     static void keyFunction(GLFWwindow* window, int key, int scancode, int action, int mods);
+    static void charFunction(GLFWwindow* window, unsigned int chr);
 };
 
 }

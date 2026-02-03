@@ -28,6 +28,19 @@ void Context::draw(const Vec2 position, const Char value)
 void Context::draw(const Vec2 position, unsigned char value, const int palette_colour)
 { draw(position, { value, getPaletteColour(palette_colour) }); }
 
+void Context::drawColour(const Vec2 position, const Colour colour)
+{
+    const Vec2 real_position = position + permitted_bounds.min;
+    if (real_position.x >= permitted_bounds.max.x
+        || real_position.y >= permitted_bounds.max.y)
+        return;
+    const size_t offset = real_position.x + (real_position.y * pitch);
+    backing[offset].colour_bits = colour;
+}
+
+void Context::drawColour(const Vec2 position, const int palette_colour)
+{ drawColour(position, getPaletteColour(palette_colour)); }
+
 void Context::drawBox(const Vec2 start, const Vec2 size, const int palette_colour)
 {
     const Colour col = getPaletteColour(palette_colour);
@@ -72,6 +85,30 @@ void Context::fill(const Vec2 start, const Vec2 size, const Char value)
 
 void Context::fill(const Vec2 start, const Vec2 size, unsigned char value, const int palette_colour)
 { fill(start, size, { value, getPaletteColour(palette_colour) }); }
+
+void Context::fillColour(const Vec2 start, const Vec2 size, const Colour colour)
+{
+    if (size.x <= 0 || size.y <= 0)
+        return;
+    const Vec2 actual_start = maxi(permitted_bounds.min, start + permitted_bounds.min);
+    const Vec2 end = mini(permitted_bounds.max, start + permitted_bounds.min + size);
+    const Vec2 actual_size = end - actual_start;
+    if (actual_size.x <= 0)
+        return;
+
+    size_t offset = actual_start.x + (actual_start.y * pitch);
+    size_t line_start = offset;
+    for (int y = 0; y < actual_size.y; ++y)
+    {
+        for (int x = 0; x < actual_size.x; ++x, ++offset)
+            backing[offset].colour_bits = colour;
+        line_start += pitch;
+        offset = line_start;
+    }
+}
+
+void Context::fillColour(const Vec2 start, const Vec2 size, const int palette_colour)
+{ fillColour(start, size, getPaletteColour(palette_colour)); }
 
 void Context::drawText(const Vec2 start, const string& text, Colour colour, size_t text_offset, size_t max_length)
 {

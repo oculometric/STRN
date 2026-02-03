@@ -211,6 +211,11 @@ void NativeRasteriser::keyFunction(GLFWwindow* window, int key, int scancode, in
     window_rasterisers[window]->pending_keys.push(KeyEvent{ key, action != GLFW_RELEASE, static_cast<KeyEvent::Modifier>(mods) });
 }
 
+void NativeRasteriser::charFunction(GLFWwindow* window, unsigned int chr)
+{
+    window_rasterisers[window]->pending_chars.push(chr);
+}
+
 NativeRasteriser::NativeRasteriser()
 {
     glfwInit();
@@ -221,6 +226,7 @@ NativeRasteriser::NativeRasteriser()
     glfwMakeContextCurrent(window);
     window_rasterisers[window] = this;
     glfwSetKeyCallback(window, keyFunction);
+    glfwSetCharCallback(window, charFunction);
     // TODO: use char func to capture typing chars
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         throw runtime_error("failed to initialize GLAD");
@@ -309,11 +315,10 @@ bool NativeRasteriser::update()
     const Vec2 size = calculateSize();
     pitch = size.x;
     setSize(size);
-    // TODO: handle input
     return false;
 }
 
-KeyEvent STRN::NativeRasteriser::getKeyEvent()
+KeyEvent NativeRasteriser::getKeyEvent()
 {
     if (pending_keys.empty())
         return { };
@@ -321,6 +326,18 @@ KeyEvent STRN::NativeRasteriser::getKeyEvent()
     {
         auto key = pending_keys.front();
         pending_keys.pop();
+        return key;
+    }
+}
+
+unsigned int NativeRasteriser::getCharEvent()
+{
+    if (pending_chars.empty())
+        return 0;
+    else
+    {
+        auto key = pending_chars.front();
+        pending_chars.pop();
         return key;
     }
 }
