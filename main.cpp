@@ -1,3 +1,4 @@
+#if !defined(STANDALONE)
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -86,3 +87,4 @@ int main()
         std::this_thread::sleep_for(sleep_duration); // prevents us from spinning too hard
     }
 }
+#endif

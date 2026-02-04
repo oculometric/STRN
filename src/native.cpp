@@ -23,16 +23,36 @@ layout (location = 3) in vec2 vertex_uv;
 
 uniform mat4 world_to_clip;
 
+uniform float distortion;
+
 varying vec3 colour_a;
 varying vec3 colour_b;
 varying vec2 uv;
+
+vec3 computeBarrelDistortedPosition(vec2 centered_uv, float strength, float square_fraction, float mask_width)
+{
+	float d = length(centered_uv);
+	vec2 distorted_uv = (centered_uv * (1.0f + (d * d * square_fraction * strength) + (d * d * d * d * (1.0f - square_fraction) * strength))) / (1.0f + (strength * 0.85f));
+
+	vec2 mask2 = clamp((abs(distorted_uv) - (1.0f - mask_width)) / mask_width, 0, 1);
+	float mask = (mask2.x + mask2.y) - (abs(mask2.x) * abs(mask2.y));
+
+	return vec3(distorted_uv, mask);
+}
 
 void main()
 {
     colour_a = vertex_colour_a;
     colour_b = vertex_colour_b;
     uv = vertex_uv;
-    gl_Position = world_to_clip * vec4(vertex_position, 1.0f);
+    vec4 position = world_to_clip * vec4(vertex_position, 1.0f);
+    vec3 result = computeBarrelDistortedPosition(position.xy, -distortion, 0.8f, 0.04f);
+    position.xy = result.xy;
+    if (result.z > 0)
+    {
+
+    }
+    gl_Position = position;
 }
 )";
 
@@ -270,6 +290,7 @@ NativeRasteriser::NativeRasteriser()
         throw runtime_error("shader program error: " + error);
     }
     transform_var = glGetUniformLocation(shader_program, "world_to_clip");
+    distortion_var = glGetUniformLocation(shader_program, "distortion");
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
 
@@ -435,7 +456,8 @@ void NativeRasteriser::present()
     mesh_index_count = static_cast<int>(indices.size());
 
     glViewport(0, 0, width, height);
-
+    const float* bg_colour = getFloatColourFromBits(static_cast<Colour>(background(clear) >> 4));
+    glClearColor(bg_colour[0], bg_colour[1], bg_colour[2], 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     const float transform[16] =
     {
@@ -448,6 +470,7 @@ void NativeRasteriser::present()
     glBindTexture(GL_TEXTURE_2D, font_texture);
     glBindVertexArray(vertex_array_object);
     glUniformMatrix4fv(transform_var, 1, GL_FALSE, transform);
+    glUniform1f(distortion_var, distortion);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawElements(GL_TRIANGLES, mesh_index_count, GL_UNSIGNED_INT, nullptr);
 
@@ -462,5 +485,5 @@ Vec2 NativeRasteriser::calculateSize() const
     float high = static_cast<float>(height) / (static_cast<float>(char_height) * static_cast<float>(scale_factor));
     if (high <= 0.0f)
         high = 1.0f;
-    return Vec2{ static_cast<int>(ceilf(wide)), static_cast<int>(ceilf(high)) };    
+    return Vec2{ static_cast<int>(floorf(wide)), static_cast<int>(floorf(high)) };    
 }
