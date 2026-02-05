@@ -146,6 +146,28 @@ void Context::drawText(const Vec2 start, const string& text, Colour colour, size
 void Context::drawText(const Vec2 start, const std::string& text, const int palette_colour, const size_t text_offset, const size_t max_length)
 { drawText(start, text, getPaletteColour(palette_colour), text_offset, max_length); }
 
+void Context::drawTextWrapped(Vec2 start, const string & text, Colour colour, size_t max_width)
+{
+    if (max_width == -1)
+    {
+        drawText(start, text, colour, 0, -1);
+        return;
+    }
+    if (max_width == 0)
+        return;
+
+    size_t start_off = 0;
+    while (start_off < text.size())
+    {
+        drawText(start, text, colour, start_off, max_width);
+        ++start.y;
+        start_off += max_width;
+    }
+}
+
+void Context::drawTextWrapped(Vec2 start, const string& text, int palette_colour, size_t max_width)
+{ drawTextWrapped(start, text, getPaletteColour(palette_colour), max_width); }
+
 vector<Char>::const_iterator Context::begin() const
 {
     return backing.begin();

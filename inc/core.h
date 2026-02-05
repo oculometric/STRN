@@ -129,6 +129,8 @@ public:
     void fillColour(Vec2 start, Vec2 size, int palette_colour);
     void drawText(Vec2 start, const std::string& text, Colour colour, size_t text_offset = 0, size_t max_length = -1);
     void drawText(Vec2 start, const std::string& text, int palette_colour = 0, size_t text_offset = 0, size_t max_length = -1);
+    void drawTextWrapped(Vec2 start, const std::string& text, Colour colour, size_t max_width = -1);
+    void drawTextWrapped(Vec2 start, const std::string& text, int palette_colour = 0, size_t max_width = -1);
     
     std::vector<Char>::const_iterator begin() const;
     std::vector<Char>::const_iterator end() const;
