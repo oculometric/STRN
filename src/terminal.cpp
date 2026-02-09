@@ -106,6 +106,10 @@ bool TerminalRasteriser::update()
                 { 46, 261 },
                 { 220, '\\' },
                 { 3, 259 },
+                { VK_OEM_COMMA, ','},
+                { VK_OEM_PLUS, '+'},
+                { VK_OEM_MINUS, '-'},
+                { VK_OEM_PERIOD, '.'},
             };
             KeyEvent evt;
             evt.pressed = records[i].Event.KeyEvent.bKeyDown;
