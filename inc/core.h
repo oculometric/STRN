@@ -251,6 +251,7 @@ private:
     size_t pitch = 1;
     float distortion = 0.03f;
     Colour clear = BG_BLACK;
+    bool transparent_window = false;
 
     unsigned int vertex_buffer;
     unsigned int index_buffer;
@@ -265,11 +266,12 @@ private:
     std::queue<unsigned int> pending_chars;
 
 public:
-    NativeRasteriser();
+    NativeRasteriser(bool transparent = false);
     NativeRasteriser(const NativeRasteriser& other) = delete;
     void operator=(const NativeRasteriser& other) = delete;
     ~NativeRasteriser() override = default;
     
+    void setWindowTitle(std::string title);
     void setWindowSize(int w, int h) const;
     void setScaleFactor(size_t value);
     void setClearColour(Colour c) { clear = c; }

@@ -236,18 +236,28 @@ void NativeRasteriser::charFunction(GLFWwindow* window, unsigned int chr)
     window_rasterisers[window]->pending_chars.push(chr);
 }
 
-NativeRasteriser::NativeRasteriser()
+NativeRasteriser::NativeRasteriser(bool transparent)
 {
+    transparent_window = transparent;
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    if (transparent)
+    {
+        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    }
     window = glfwCreateWindow(1280, 960, "STRN", nullptr, nullptr);
+    if (!glfwGetWindowAttrib(window, GLFW_TRANSPARENT_FRAMEBUFFER) && transparent)
+    {
+        throw runtime_error("unable to make window transparent");
+    }
     glfwMakeContextCurrent(window);
     window_rasterisers[window] = this;
     glfwSetKeyCallback(window, keyFunction);
     glfwSetCharCallback(window, charFunction);
-    // TODO: use char func to capture typing chars
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         throw runtime_error("failed to initialize GLAD");
     setSize({ 132, 48 });
@@ -319,6 +329,11 @@ NativeRasteriser::NativeRasteriser()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 320, 144, 0, GL_RED, GL_UNSIGNED_BYTE, ibm_model30r0_font);
+}
+
+void NativeRasteriser::setWindowTitle(string title)
+{
+    glfwSetWindowTitle(window, title.c_str());
 }
 
 void NativeRasteriser::setWindowSize(const int w, const int h) const
@@ -457,7 +472,10 @@ void NativeRasteriser::present()
 
     glViewport(0, 0, width, height);
     const float* bg_colour = getFloatColourFromBits(static_cast<Colour>(background(clear) >> 4));
-    glClearColor(bg_colour[0], bg_colour[1], bg_colour[2], 1.0f);
+    if (transparent_window)
+        glClearColor(0, 0, 0, 0);
+    else
+        glClearColor(bg_colour[0], bg_colour[1], bg_colour[2], 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     const float transform[16] =
     {

@@ -127,8 +127,6 @@ void Context::drawText(const Vec2 start, const string& text, Colour colour, size
     actual_start += permitted_bounds.min;
     const size_t max_bound = static_cast<size_t>(permitted_bounds.max.x);
     max_length = min(max_length + static_cast<size_t>(actual_start.x), max_bound) - static_cast<size_t>(actual_start.x);
-    //if (static_cast<size_t>(actual_start.x) + max_length > max_bound)
-    //    max_length -= static_cast<size_t>(actual_start.x) + max_length - max_bound;
     
     size_t offset = actual_start.x + (actual_start.y * pitch);
     
