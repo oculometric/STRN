@@ -371,30 +371,6 @@ bool NativeRasteriser::update()
     return false;
 }
 
-KeyEvent NativeRasteriser::getKeyEvent()
-{
-    if (pending_keys.empty())
-        return { };
-    else
-    {
-        auto key = pending_keys.front();
-        pending_keys.pop();
-        return key;
-    }
-}
-
-unsigned int NativeRasteriser::getCharEvent()
-{
-    if (pending_chars.empty())
-        return 0;
-    else
-    {
-        auto key = pending_chars.front();
-        pending_chars.pop();
-        return key;
-    }
-}
-
 static const float* getFloatColourFromBits(const Colour c)
 {
     static const float colours[16][3] =

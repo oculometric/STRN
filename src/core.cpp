@@ -15,6 +15,30 @@ Context::Context(const Vec2 size, const Char fill_value)
     permitted_bounds = { { 0, 0 }, size };
 }
 
+KeyEvent Rasteriser::getKeyEvent()
+{
+    if (pending_keys.empty())
+        return { };
+    else
+    {
+        auto key = pending_keys.front();
+        pending_keys.pop();
+        return key;
+    }
+}
+
+unsigned int Rasteriser::getCharEvent()
+{
+    if (pending_chars.empty())
+        return 0;
+    else
+    {
+        auto key = pending_chars.front();
+        pending_chars.pop();
+        return key;
+    }
+}
+
 void Context::draw(const Vec2 position, const Char value)
 {
     const Vec2 real_position = position + permitted_bounds.min;

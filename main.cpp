@@ -19,7 +19,7 @@ const char* saturn_ascii =
 
 int main()
 {
-    STRN::NativeRasteriser comp;
+    STRN::TerminalRasteriser comp;
     STRN::Window* window = new STRN::Window("performance", false, false);
     comp.insertDrawable(window);
     window->setSize({ 20, 4 });

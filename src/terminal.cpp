@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
+#include <map>
 #if defined(_WIN32)
 #include <Windows.h>
 #elif defined(__linux__)
@@ -19,7 +20,8 @@ TerminalRasteriser::TerminalRasteriser()
 {
     std::ios_base::sync_with_stdio(false);
 #if defined(_WIN32)
-    SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT | ENABLE_WRAP_AT_EOL_OUTPUT);
+    SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), ENABLE_VIRTUAL_TERMINAL_PROCESSING | ENABLE_PROCESSED_OUTPUT);
+    SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), ENABLE_EXTENDED_FLAGS);
 #elif defined(__linux__)
     termios new_termios;
     tcgetattr(STDIN_FILENO, &new_termios);
@@ -66,6 +68,67 @@ void TerminalRasteriser::setCursorPosition(const Vec2 position)
 bool TerminalRasteriser::update()
 {
     setSize(getScreenSize());
+
+#if defined(_WIN32)
+    // find available
+    DWORD events_available;
+    GetNumberOfConsoleInputEvents(GetStdHandle(STD_INPUT_HANDLE), &events_available);
+    if (events_available < 1) return false;
+
+    // grab 32 of them
+    INPUT_RECORD records[32] = { };
+    DWORD records_read;
+
+    if (ReadConsoleInput(GetStdHandle(STD_INPUT_HANDLE), records, 32, &records_read) == 0)
+        throw runtime_error("input error");
+
+    for (size_t i = 0; i < records_read; ++i)
+    {
+        if (records[i].EventType == KEY_EVENT)
+        { // && records[i].Event.KeyEvent.bKeyDown
+            auto unicode = records[i].Event.KeyEvent.uChar.UnicodeChar;
+            if (!(unicode == '\r' || unicode == '\t' || unicode < 32 || unicode == 127 || records[i].Event.KeyEvent.dwControlKeyState > VK_SHIFT))
+            {
+                // if the event is a unicode character, send it to the char queue
+                if (records[i].Event.KeyEvent.bKeyDown)
+                    pending_chars.push(unicode);
+            }
+
+            // otherwise send it to the keyevent queue
+            static map<WORD, int> key_code_map = {
+                { 13, 257 },
+                { 27, 256 },
+                { 37, 263 },
+                { 38, 265 },
+                { 40, 264 },
+                { 39, 262 },
+                { 8, 259 },
+                { 46, 261 },
+                { 220, '\\' },
+                { 3, 259 },
+            };
+            KeyEvent evt;
+            evt.pressed = records[i].Event.KeyEvent.bKeyDown;
+            evt.key = records[i].Event.KeyEvent.wVirtualKeyCode;
+            // process special characters to make sure they appear in the right way
+            if (key_code_map.find(evt.key) != key_code_map.end())
+                evt.key = key_code_map[evt.key];
+
+            // process modifiers
+            DWORD control_key = records[i].Event.KeyEvent.dwControlKeyState;
+            if (control_key &       0b11) evt.modifiers = (KeyEvent::Modifier)(evt.modifiers | KeyEvent::ALT);
+            if (control_key &     0b1100) evt.modifiers = (KeyEvent::Modifier)(evt.modifiers | KeyEvent::CTRL);
+            if (control_key &    0b10000) evt.modifiers = (KeyEvent::Modifier)(evt.modifiers | KeyEvent::SHIFT);
+            if (control_key &    0b10000) evt.modifiers = (KeyEvent::Modifier)(evt.modifiers | KeyEvent::SHIFT);
+            if (control_key &   0b100000) evt.modifiers = (KeyEvent::Modifier)(evt.modifiers | KeyEvent::NUM);
+            if (control_key & 0b10000000) evt.modifiers = (KeyEvent::Modifier)(evt.modifiers | KeyEvent::CAPS);
+            pending_keys.push(evt);
+        }
+    }
+#endif
+
+    // FIXME: linux input not supported!!
+
     return false; // TODO: should return true if CTRL+C is pressed
 }
 
@@ -118,9 +181,12 @@ void TerminalRasteriser::present()
             result.push_back('m');
             first_pass = false;
         }
-        result.push_back(it.value);
+        if (it.value != 0)
+            result.push_back(it.value);
+        else
+            result.push_back(' ');
     }
     setCursorVisible(false);
-    fputs(result.c_str(), stdout);
     setCursorPosition({ 0, 0 });
+    fputs(result.c_str(), stdout);
 }

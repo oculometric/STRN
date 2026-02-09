@@ -190,7 +190,11 @@ private:
     Vec2 size;
     std::set<Drawable*> drawables;
     Char clear_value = { ' ' };
-    
+
+protected:
+    std::queue<KeyEvent> pending_keys;
+    std::queue<unsigned int> pending_chars;
+
 public:
     Rasteriser(const Rasteriser& other) = delete;
     void operator=(const Rasteriser& other) = delete;
@@ -198,7 +202,9 @@ public:
     
     void render();
     virtual bool update() { return false; }
-    virtual KeyEvent getKeyEvent() { return { }; }
+    // TODO: merge these together and update behaviour accordingly
+    KeyEvent getKeyEvent();
+    unsigned int getCharEvent();
     virtual void present() { }
     Vec2 getSize() const { return size; }
     void setSize(Vec2 new_size);
@@ -228,7 +234,6 @@ public:
     static void setCursorPosition(Vec2 position);
     
     bool update() override;
-    // TODO: handle input
     void present() override;
 };
 
@@ -262,9 +267,6 @@ private:
     unsigned int font_texture;
     int mesh_index_count;
 
-    std::queue<KeyEvent> pending_keys;
-    std::queue<unsigned int> pending_chars;
-
 public:
     NativeRasteriser(bool transparent = false);
     NativeRasteriser(const NativeRasteriser& other) = delete;
@@ -279,8 +281,6 @@ public:
     void setWindowIcon(const std::vector<uint8_t> icon_data);
     
     bool update() override;
-    KeyEvent getKeyEvent() override;
-    unsigned int getCharEvent();
     void present() override;
     
 private:
