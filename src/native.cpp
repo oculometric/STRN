@@ -6,6 +6,8 @@
 #include <GLFW/glfw3.h>
 #include <cmath>
 #include <map>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
 
 using namespace STRN;
 using namespace std;
@@ -250,6 +252,10 @@ NativeRasteriser::NativeRasteriser(bool transparent)
         glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
     }
     window = glfwCreateWindow(1280, 960, "STRN", nullptr, nullptr);
+    if (window == nullptr)
+    {
+        throw runtime_error("unable to create GLFW window");
+    }
     if (!glfwGetWindowAttrib(window, GLFW_TRANSPARENT_FRAMEBUFFER) && transparent)
     {
         throw runtime_error("unable to make window transparent");
@@ -341,6 +347,17 @@ void NativeRasteriser::setWindowSize(const int w, const int h) const
 
 void NativeRasteriser::setScaleFactor(const size_t value)
 { scale_factor = value; }
+
+void NativeRasteriser::setWindowIcon(const vector<uint8_t> icon_data)
+{
+    GLFWimage image;
+
+    int img_channels;
+    image.pixels = stbi_load_from_memory(icon_data.data(), static_cast<int>(icon_data.size()), &image.width, &image.height, &img_channels, STBI_rgb_alpha);
+    
+    glfwSetWindowIcon(window, 1, &image);
+    stbi_image_free(image.pixels);
+}
 
 bool NativeRasteriser::update()
 {

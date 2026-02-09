@@ -276,6 +276,7 @@ public:
     void setScaleFactor(size_t value);
     void setClearColour(Colour c) { clear = c; }
     void setDistortion(float d) { distortion = d; }
+    void setWindowIcon(const std::vector<uint8_t> icon_data);
     
     bool update() override;
     KeyEvent getKeyEvent() override;
